@@ -8,6 +8,8 @@ type AuthContextType = {
     login: (data: { email: string; password: string }) => Promise<void>;
     error: string | null;
     response: unknown | null;
+    isLoading: boolean;
+    clearResponse: () => void;
 };
 
 // Create a context object
@@ -18,6 +20,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [isLoginForm, setIsLoginForm] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [response, setResponse] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+
+    const clearResponse = () => {
+        setResponse(null);
+    }
 
     // Toggle the login form
     const toggleForm = ((isLogin: boolean) => {
@@ -28,8 +35,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Register and login functions
     const registerUser = (async (data: { name: string; email: string; password: string }) => {
         try {
+            setIsLoading(true);
             const res = await register(data);
             setResponse(res);
+            setIsLoading(false);
             // Handle successful registration (e.g., show success message, redirect, etc.)
         } catch (err) {
             // console.log(err);
@@ -39,8 +48,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     const loginUser = (async (data: { email: string; password: string }) => {
         try {
+            setIsLoading(true);
             const res =await login(data);
             setResponse(res);
+            setIsLoading(false);
             // Handle successful login (e.g., show success message, redirect, etc.)
         } catch (err) {
             // console.log(err);
@@ -49,7 +60,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
 
     return (
-        <AuthContext.Provider value={{ isLoginForm, toggleForm, register: registerUser, error, login: loginUser, response }}>
+        <AuthContext.Provider value={{ isLoginForm, toggleForm, register: registerUser, error, login: loginUser, response, isLoading, clearResponse }}>
             {children}
         </AuthContext.Provider>
     );
